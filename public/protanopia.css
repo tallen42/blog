@@ -6,10 +6,31 @@
 /* combination of:
     https://github.com/giscus/giscus/blob/main/styles/themes/light_protanopia.css
     https://github.com/giscus/giscus/blob/main/styles/themes/dark_protanopia.css
+    + it's pink now
+    + inter font
 */
 
-/* hosted at https://cdn.kunet.dev/protanopia.css */
-/* also at https://blog.kunet.dev/protanopia.css */
+/* hosted at https://blog.kunet.dev/protanopia.css */
+
+@import url('https://cdnjs.cloudflare.com/ajax/libs/inter-ui/4.0.2/inter.min.css');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/inter-ui/4.0.2/inter-variable.min.css');
+
+:root {
+  font-family: Inter, sans-serif;
+  font-feature-settings:
+    'liga' 1,
+    'calt' 1; /* fix for Chrome */
+}
+
+@supports (font-variation-settings: normal) {
+  :root {
+    font-family: InterVariable, sans-serif;
+  }
+}
+
+*::selection {
+  background-color: rgb(236 72 153 / 0.3);
+}
 
 main {
   --color-prettylights-syntax-comment: #6e7781;
