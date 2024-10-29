@@ -1,0 +1,43 @@
+---
+import Article from '@/layouts/Article.astro';
+import type { Frontmatter } from '@/utils/article-types';
+import { extractFileKey } from '@/utils/article-utils';
+import type { MDXInstance } from 'astro';
+
+interface Props {
+  post: MDXInstance<Frontmatter>;
+  key: string;
+  file: string;
+}
+
+export async function getStaticPaths() {
+  const articles: MDXInstance<Frontmatter>[] = await Astro.glob('@/articles/*/*/*.mdx');
+  return articles.flatMap((article) => {
+    const fileName = extractFileKey(article.file);
+    // this uses a really bad hack in order to format into yyyy-MM-dd
+    /*const formattedDate = new Date(article.frontmatter.date).toLocaleDateString('sv-se', {
+      timeZone: 'UTC',
+    });*/
+    return [
+      {
+        params: { id: fileName },
+        props: { post: article, key: fileName, file: article.file },
+      },
+      // this one has the date in front of it
+      /*
+      {
+        params: { id: formattedDate + '-' + fileName },
+        props: { post: article, key: fileName, file: article.file },
+      },
+      */
+    ];
+  });
+}
+
+const { post, key, file } = Astro.props;
+const { Content } = post;
+---
+
+<Article frontmatter={post.frontmatter} key={key} file={file}>
+  <Content />
+</Article>

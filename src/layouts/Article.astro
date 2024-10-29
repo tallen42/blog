@@ -1,0 +1,190 @@
+---
+import '@/styles/article.css';
+import ArticleLink from '@/components/ArticleLink.astro';
+import type { ImageMetadata, MDXInstance } from 'astro';
+import { Image } from 'astro:assets';
+import Base from '@/layouts/Base.astro';
+import type { Frontmatter } from '@/utils/article-types';
+import { embeddedMarkdownToHtml, embeddedMarkdownToString } from '@/utils/embedded-markdown';
+import GitHubIcon from '@/assets/icons/github.svg?raw';
+import MessagesIcon from '@/assets/icons/messages-square.svg?raw';
+
+interface Props {
+  frontmatter: Frontmatter;
+  key: string;
+  file: string;
+}
+
+const { frontmatter, key, file } = Astro.props;
+
+const renderedTitle = embeddedMarkdownToHtml(`# ${frontmatter.title}`);
+const renderedSubtitle = embeddedMarkdownToHtml(`## ${frontmatter.description}`);
+
+const rawTitle = embeddedMarkdownToString(frontmatter.title);
+const rawDescription = embeddedMarkdownToString(frontmatter.description);
+
+const filePath = file.split('/').splice(-5).join('/');
+
+// hero image stuff
+// https://docs.astro.build/en/recipes/dynamically-importing-images/
+
+const parentFilePath = filePath.split('/').slice(0, -1).join('/');
+const images = import.meta.glob<{ default: ImageMetadata }>('/src/articles/**/*.png');
+const heroImage = Object.keys(images).find(
+  (v) =>
+    frontmatter.hero !== undefined &&
+    v.startsWith(`/${parentFilePath}`) &&
+    v.endsWith(`/${frontmatter.hero}`),
+);
+const image = heroImage ? images[heroImage]() : null;
+
+const more = [
+  'Other articles',
+  'More reading',
+  'Just one more article...',
+  'More babbling',
+  'Other thoughts',
+];
+const moreText = more[Math.floor(Math.random() * more.length)];
+
+const posts = ((await Astro.glob('@/articles/*/*/*.mdx')) as MDXInstance<Frontmatter>[])
+  .filter((article) => !article.frontmatter.underConstruction || import.meta.env.DEV)
+  .sort((a, b) => Date.parse(b.frontmatter.date) - Date.parse(a.frontmatter.date));
+
+let latestPost = posts.shift()!;
+if (latestPost.file === file) latestPost = posts.shift()!;
+const randomPost = posts[Math.floor(Math.random() * posts.length)];
+---
+
+<Base
+  pageTitle={rawTitle}
+  ogDescription={rawDescription}
+  ogTags={frontmatter.tags}
+  ogPublished={frontmatter.date}
+>
+  <article>
+    <div class="article prose mx-auto w-full py-4 xl:prose-lg dark:prose-invert">
+      {image && <Image src={image} alt={frontmatter.heroAlt || 'Hero Image'} />}
+      <div class="embedded-markdown" set:html={renderedTitle} />
+      <div
+        class="embedded-markdown py-2 prose-headings:text-subtext1"
+        set:html={renderedSubtitle}
+      />
+      <p class="!my-2 text-subtext0">
+        <span data-date={frontmatter.date}>
+          {
+            new Date(frontmatter.date).toLocaleDateString('en-us', {
+              timeZone: 'UTC',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })
+          }
+        </span>
+        ∙
+        <span>{frontmatter.readingTime}</span>
+      </p>
+      {
+        frontmatter.tags && (
+          <div class="not-prose my-2 flex w-full gap-4 overflow-scroll p-1">
+            {frontmatter.tags.map((tag) => (
+              <a
+                class="flex flex-row gap-2 text-nowrap rounded-l-3xl rounded-r-lg bg-surface0/50 px-2 outline outline-1 outline-surface1/70 transition-colors hover:bg-surface1"
+                href={`/tags/${tag}`}
+                tabindex="-1"
+                title={tag}
+              >
+                <span class="text-surface2">•</span> {tag}
+              </a>
+            ))}
+          </div>
+        )
+      }
+      {
+        frontmatter.learningDisclaimer && (
+          <div class="not-prose my-6 flex flex-col gap-4 rounded bg-rose-800/20 p-4 outline outline-1 outline-offset-2 outline-rose-700/60">
+            <p>
+              This article is marked as a <b>learning</b> article, which means that this article was
+              written for the sake of me learning through explaining.
+            </p>
+            <p>
+              As such, please take the content in this article with a grain of salt. Feel free to
+              include any comments that might correct something incorrect I have said.
+            </p>
+          </div>
+        )
+      }
+      {
+        frontmatter.underConstruction && (
+          <div class="not-prose my-6 rounded bg-yellow-800/40 p-4 outline outline-1 outline-offset-2 outline-yellow-700">
+            <p>
+              This article is marked as <b>under construction</b> which means that this article's
+              content is incomplete and will be updated at a later date. Check back for updates!
+            </p>
+          </div>
+        )
+      }
+      {
+        frontmatter.notExpert && (
+          <div class="not-prose my-6 rounded-lg bg-rosewater/30 p-4 outline outline-1 outline-offset-2 outline-rosewater/50">
+            <p>
+              This article is about a (probably complicated) topic that is not written by an expert
+              in this topic. Take everything with a grain of salt, and feel free to leave new
+              information or corrections in the comments.
+            </p>
+          </div>
+        )
+      }
+      <slot />
+      <hr />
+    </div>
+  </article>
+  <div
+    class="prose prose-sm mb-8 flex w-full max-w-full flex-row justify-between gap-4 dark:prose-invert"
+  >
+    <a
+      href={`https://github.com/imkunet/kunet-blog/blob/main/${filePath}`}
+      target="_blank"
+      class="opacity-50 transition-opacity hover:opacity-100"
+    >
+      <div class="flex flex-row gap-2"><Fragment set:html={GitHubIcon} /> Source</div>
+    </a>
+    <a
+      href="https://github.com/imkunet/kunet-blog/discussions/categories/comments"
+      target="_blank"
+      class="opacity-50 transition-opacity hover:opacity-100"
+    >
+      <div class="flex flex-row gap-2"><Fragment set:html={MessagesIcon} /> Discussion</div>
+    </a>
+  </div>
+
+  <div class="my-12 flex flex-col gap-4">
+    <div class="w-full text-center text-xl font-medium text-subtext1">{moreText}</div>
+    <ArticleLink article={latestPost} />
+    <ArticleLink article={randomPost} />
+  </div>
+
+  <div class="giscus mb-24"></div>
+
+  <script src="@/scripts/zoom.ts"></script>
+
+  <script
+    is:inline
+    id="giscus-script"
+    src="https://giscus.app/client.js"
+    data-repo="imkunet/kunet-blog"
+    data-repo-id="R_kgDOK9VuKg"
+    data-category="Comments"
+    data-category-id="DIC_kwDOK9VuKs4Cb-53"
+    data-mapping="specific"
+    data-term={key}
+    data-strict="1"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="https://cdn.kunet.dev/protanopia.css"
+    data-lang="en"
+    data-loading="lazy"
+    crossorigin="anonymous"
+    async></script>
+</Base>

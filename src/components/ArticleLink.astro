@@ -1,0 +1,57 @@
+---
+import type { Frontmatter } from '@/utils/article-types';
+import { extractFileKey } from '@/utils/article-utils';
+import { embeddedMarkdownToHtml, stripOutsideTags } from '@/utils/embedded-markdown';
+import type { MDXInstance } from 'astro';
+interface Props {
+  article: MDXInstance<Frontmatter>;
+}
+
+const { article } = Astro.props;
+const key = extractFileKey(article.file);
+
+const frontmatter = article.frontmatter;
+
+const renderedTitle = stripOutsideTags(embeddedMarkdownToHtml(frontmatter.title));
+const renderedSubtitle = embeddedMarkdownToHtml(frontmatter.description);
+---
+
+<div
+  class="articleLink prose prose-linked mx-auto w-full rounded-xl p-4 shadow-md outline outline-1 outline-subtext1/30 transition-shadow duration-300 xl:prose-lg dark:prose-invert hover:shadow-lg hover:outline-pink-500"
+>
+  <a href={`/article/${key}`} class="w-full text-left rtl:text-right">
+    <div class="embedded-markdown text-subtext1" set:html={renderedSubtitle} />
+    <span class="block w-full">
+      <span class="articleTitle embedded-markdown text-2xl !font-medium" set:html={renderedTitle} />
+    </span>
+    <p class="!my-0 text-subtext0">
+      <span data-date={frontmatter.date}>
+        {
+          new Date(frontmatter.date).toLocaleDateString('en-us', {
+            timeZone: 'UTC',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })
+        }
+      </span>
+      ∙
+      <span>{frontmatter.readingTime}</span>
+    </p>
+  </a>
+  <hr class="!my-2" />
+  <div class="not-prose flex w-full flex-row gap-4 overflow-scroll p-1 pt-2">
+    {
+      (article.frontmatter?.tags || []).map((tag) => (
+        <a
+          class="flex flex-row gap-2 text-nowrap rounded-l-3xl rounded-r-lg bg-surface0/50 px-2 outline outline-1 outline-surface1/70 transition-colors hover:bg-surface1"
+          href={`/tags/${tag}`}
+          tabindex="-1"
+          title={tag}
+        >
+          <span class="text-surface2">•</span> {tag}
+        </a>
+      ))
+    }
+  </div>
+</div>

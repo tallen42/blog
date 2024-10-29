@@ -1,0 +1,32 @@
+---
+import ArticleLink from '@/components/ArticleLink.astro';
+import Base from '@/layouts/Base.astro';
+import type { Frontmatter } from '@/utils/article-types';
+import type { MDXInstance } from 'astro';
+import { embeddedMarkdownToHtml } from '@/utils/embedded-markdown';
+
+const posts = ((await Astro.glob('@/articles/*/*/*.mdx')) as MDXInstance<Frontmatter>[])
+  .filter((article) => !article.frontmatter.underConstruction || import.meta.env.DEV)
+  .sort((a, b) => Date.parse(b.frontmatter.date) - Date.parse(a.frontmatter.date));
+
+const preamble = embeddedMarkdownToHtml(`
+# KuNet's Blog
+Heyo~! Welcome to my little blog site.
+- Unattributed code is [Creative Commons CC0](https://creativecommons.org/publicdomain/zero/1.0/).
+- The text of this blog is [Creative Commons CC BY-ND](https://creativecommons.org/licenses/by-nd/4.0/).
+- The license to the blog itself can be found [here](https://github.com/imkunet/kunet-blog/blob/main/LICENSE.md).
+- Feel free to contact me directly through the details listed on my [GitHub page](https://github.com/imkunet)!
+
+*Opinions on this blog are my own and do not reflect the opinions of any employers past, present, and future.*`);
+---
+
+<Base ogTitle="Homepage" ogDescription="All the posts">
+  <div
+    class="article tight-markdown prose mx-auto w-full pb-4 xl:prose-lg dark:prose-invert"
+    set:html={preamble}
+  />
+  <div class="flex flex-col gap-4">
+    {posts.map((post) => <ArticleLink article={post} />)}
+  </div>
+  <div class="py-16 text-center italic text-subtext0/50">you're at the beginning of time</div>
+</Base>

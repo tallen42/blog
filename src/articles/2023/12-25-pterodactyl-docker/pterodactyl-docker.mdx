@@ -1,0 +1,293 @@
+---
+title: Pterodactyl Docker Compose Installation
+description: Easy Docker Compose setup
+date: 2023-12-25
+tags: ['docker', 'guide', 'pterodactyl']
+---
+
+## Contents
+
+## Preamble
+
+Pterodactyl's great! Unfortunately the documentation on how to install Pterodactyl is still lacking.
+
+When I was in middle school (_in the United States_), I tried to install Pterodactyl and ended up
+having to restart at least `10` times because of minor mistakes. The only installations that ended
+up working first try were the installer scripts which often harbored their own issues.
+
+We now live in the age where you can just use Docker and Docker Compose to deploy everything easily.
+It's a shame though that the [official documentation](https://pterodactyl.io/panel/1.0/getting_started.html)
+has no Docker Compose instructions to show for it.
+
+Enough waffling. Here's how to easily configure it.
+
+## Basic Assumptions
+
+These are some basic requirements and if you know what you are doing, this guide is still fine to follow just adjust accordingly:
+
+- You have a domain and it is correctly set up to point `panel.domain.com` and `node.domain.com` to your server
+- Docker is installed and working
+  - Running on root (`cgroupsv2` doesn't work on rootless)
+  - On a system that supports `cgroupsv2` (or else resource limits don't work)
+  - Docker compose works
+- Firewall allows: 80/tcp, 443/tcp, 443/udp, 8080/tcp, 8080/udp, and 2022/tcp
+
+_Why open 8080/tcp and 8080/udp when we could just use 443? Pterodactyl is rather picky and using 443 exclusively
+does not play well with Caddy. It is doable though and I encourage you to give it a try if you think you've got the chops._
+
+> **NOTE**: If the `docker compose` command isn't resolving for you, you might need to use `docker-compmose` instead.
+
+In the course of the guide, you should place all the individual components in separate folders.
+A file structre like the following should suffice:
+
+```plaintext attribution="File structure"
+.
+├─ 📁 panel/
+│  └ 📄 docker-compose.yml
+├─ 📁 wings/
+│  └ 📄 docker-compose.yml
+├─ 📁 caddy/
+│  └ 📁 caddy/
+│    └ 📄 Caddyfile
+│  └ 📄 docker-compose.yml
+...
+```
+
+## Panel Config
+
+Let's start with the easy part (the panel) first (_read the instructions!_):
+
+```yaml {12} collapse={13-81} title="panel/docker-compose.yml" attribution="[Modified from Pterodactyl GitHub](https://raw.githubusercontent.com/pterodactyl/panel/develop/docker-compose.example.yml)"
+x-common:
+  database: &db-environment
+    #
+    # Do not remove the "&db-password" from the line below.
+    MYSQL_PASSWORD: &db-password 'CHANGE_ME'
+    MYSQL_ROOT_PASSWORD: 'CHANGE_ME_TOO'
+    # ^^^ The following values will be
+    #     changed in the following commands
+  panel: &panel-environment
+    #
+    # Change this to your panel URL
+    APP_URL: 'https://panel.kunet.dev'
+
+    # A list of valid timezones can be found here: http://php.net/manual/en/timezones.php
+    APP_TIMEZONE: 'UTC'
+    APP_SERVICE_AUTHOR: 'noreply@example.com'
+  # Not strictly necessary unless you need to send mail.
+  mail: &mail-environment
+    MAIL_FROM: 'noreply@example.com'
+    MAIL_DRIVER: 'smtp'
+    MAIL_HOST: 'mail'
+    MAIL_PORT: '1025'
+    MAIL_USERNAME: ''
+    MAIL_PASSWORD: ''
+    MAIL_ENCRYPTION: 'true'
+
+#
+# ------------------------------------------------------------------------------------------
+# DANGER ZONE BELOW
+#
+# The remainder of this file likely does not need to be changed. Please only make modifications
+# below if you understand what you are doing.
+#
+services:
+  database:
+    image: mariadb:10.5
+    restart: always
+    networks:
+      - caddy
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - './pterodactyl/database:/var/lib/mysql'
+    environment:
+      <<: *db-environment
+      MYSQL_DATABASE: 'panel'
+      MYSQL_USER: 'pterodactyl'
+  cache:
+    image: redis:alpine
+    restart: always
+    networks:
+      - caddy
+  panel:
+    networks:
+      - caddy
+    image: ghcr.io/pterodactyl/panel:latest
+    container_name: panel
+    restart: always
+    links:
+      - database
+      - cache
+    volumes:
+      - './pterodactyl/var/:/app/var/'
+      - './pterodactyl/nginx/:/etc/nginx/http.d/'
+      - './pterodactyl/certs/:/etc/letsencrypt/'
+      - './pterodactyl/logs/:/app/storage/logs'
+    environment:
+      <<: [*panel-environment, *mail-environment]
+      DB_PASSWORD: *db-password
+      APP_ENV: 'production'
+      APP_ENVIRONMENT_ONLY: 'false'
+      CACHE_DRIVER: 'redis'
+      SESSION_DRIVER: 'redis'
+      QUEUE_DRIVER: 'redis'
+      REDIS_HOST: 'cache'
+      DB_HOST: 'database'
+      DB_PORT: '3306'
+networks:
+  caddy:
+    external: true
+    name: caddy
+    driver: bridge
+```
+
+Then, execute the following commands (in the same folder):
+
+```bash
+# magic to change the default database password to a secure random value
+sed -i "s/'CHANGE_ME'/'$(tr -dc A-Za-z0-9 < /dev/random | head -c 8)'/" docker-compose.yml
+sed -i "s/'CHANGE_ME_TOO'/'$(tr -dc A-Za-z0-9 < /dev/random | head -c 8)'/" docker-compose.yml
+
+# create Caddy network
+docker network create caddy --driver bridge --subnet 172.14.0.0/16
+
+# now it's time to start it up
+docker compose up -d
+
+# create a user for later
+docker exec -it panel php artisan p:user:make
+```
+
+You won't be able to reach the panel yet because we haven't set up Caddy yet. We'll come back to that.
+
+## Wings Configuration
+
+All that needs to be done is to paste in this file:
+
+```yaml title="wings/docker-compose.yml" attribution="[Modified from Pterodactyl GitHub](https://raw.githubusercontent.com/pterodactyl/wings/develop/docker-compose.example.yml)"
+services:
+  wings:
+    image: ghcr.io/pterodactyl/wings:latest
+    restart: always
+    networks:
+      - caddy
+    ports:
+      - '2022:2022'
+    tty: true
+    environment:
+      TZ: 'UTC'
+      WINGS_UID: 988
+      WINGS_GID: 988
+      WINGS_USERNAME: pterodactyl
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - '/var/lib/docker/containers/:/var/lib/docker/containers/'
+      - '/etc/pterodactyl/:/etc/pterodactyl/'
+      - '/var/lib/pterodactyl/:/var/lib/pterodactyl/'
+      - '/var/log/pterodactyl/:/var/log/pterodactyl/'
+      - '/tmp/pterodactyl/:/tmp/pterodactyl/'
+      - '/etc/ssl/certs:/etc/ssl/certs:ro'
+networks:
+  caddy:
+    external: true
+    name: caddy
+    driver: bridge
+```
+
+Don't start `wings` quite yet, we'll get back to that soon enough. (It needs to be configured first before starting in order to do anything useful!)
+
+## Caddy Config
+
+```yaml title="caddy/docker-compose.yml" attribution="Extra cool; &bt;Caddyfile&bt; auto-formats!"
+services:
+  caddy:
+    container_name: caddy
+    networks:
+      - caddy
+    image: caddy:alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+      - '8080:8080'
+      - '8080:8080/udp'
+    volumes:
+      - ./caddy:/etc/caddy
+      - ./caddy_data:/data
+      - ./caddy_config:/config
+    command: "sh -c 'caddy fmt -w /etc/caddy/Caddyfile && caddy run --config /etc/caddy/Caddyfile --adapter caddyfile'"
+networks:
+  caddy:
+    external: true
+    name: caddy
+    driver: bridge
+```
+
+And inside the `caddy` folder which is in the same folder that the Caddy `docker-compose.yml` file is
+in is the `Caddyfile` (see file structure):
+
+```plaintext attribution="File structure"
+.
+├─ 📁 panel/
+│  └ 📄 docker-compose.yml
+├─ 📁 wings/
+│  └ 📄 docker-compose.yml
+├─ 📁 caddy/
+│  └ 📁 caddy/
+│    └ 📄 Caddyfile
+│  └ 📄 docker-compose.yml
+...
+```
+
+Change the domains to the domains to your domains but
+keep the `http://panel` and `http://wings:8080` as they are automatically correctly routed to the other
+containers through the magic of Docker's DNS:
+
+```Caddyfile title="caddy/caddy/Caddyfile"
+panel.kunet.dev {
+    reverse_proxy http://panel
+}
+
+node.kunet.dev:8080 {
+    reverse_proxy http://wings:8080
+}
+```
+
+These commands on Linux will increase the maximum UDP buffer size, which you might want to do for [performance reasons](https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes) for QUIC (which runs on UDP) and is enabled by default in Caddy:
+
+```bash title="(as root)" attribution="Increase UDP buffer size"
+# needs to be run as root
+sysctl -w net.core.rmem_max=2500000
+sysctl -w net.core.wmem_max=2500000
+```
+
+Go ahead and start up the Caddy proxy:
+
+```bash
+docker compose up -d
+```
+
+## Node Creation
+
+Now log into the panel and begin the node creation process in the admin area.
+
+You'll want to make sure the following options are in order:
+
+- Behind Proxy (we are indeed behind a proxy)
+
+Once it's been created, head to the configuration tab and copy it all to clipboard.
+
+You'll want to place the contents of the file into the path `/etc/pterodactyl/config.yml`.
+After that, you're free to start up `wings`.
+
+```bash attribution="Start Wings (in the wings folder)"
+docker-compose up -d
+```
+
+When you click on the side bar button for "Nodes" and see a green heart icon next to your new node,
+you'll know that the configuration has correctly worked, and you can begin making servers to your heart's content.
+
+## Conclusion
+
+This guide is especially finnicky and difficult, ask questions in the comments or [contact me](https://github.com/imkunet) directly.

@@ -1,0 +1,50 @@
+---
+import ArticleLink from '@/components/ArticleLink.astro';
+import Base from '@/layouts/Base.astro';
+import type { Frontmatter } from '@/utils/article-types';
+import type { MDXInstance } from 'astro';
+import { embeddedMarkdownToHtml } from '@/utils/embedded-markdown';
+
+interface Props {
+  posts: MDXInstance<Frontmatter>[];
+  tag: string;
+}
+
+export async function getStaticPaths() {
+  const posts: MDXInstance<Frontmatter>[] = (
+    (await Astro.glob('@/articles/*/*/*.mdx')) as MDXInstance<Frontmatter>[]
+  )
+    .filter((article) => !article.frontmatter.underConstruction || import.meta.env.DEV)
+    .sort((a, b) => Date.parse(b.frontmatter.date) - Date.parse(a.frontmatter.date));
+
+  const allTags: Set<string> = new Set(posts.map((article) => article.frontmatter.tags).flat());
+
+  return [...allTags].map((tag) => ({
+    params: { id: tag },
+    props: { posts: posts.filter((post) => post.frontmatter.tags.includes(tag)), tag: tag },
+  }));
+}
+
+const tagMap: Record<string, string> = {
+  guide: 'Little hand written guides for your consumption pleasure!',
+  pterodactyl: 'For the [pterodactyl](https://pterodactyl.io/) management panel',
+  programming: 'All things programming go here!',
+};
+
+const { posts, tag } = Astro.props;
+
+const preamble = embeddedMarkdownToHtml(`# Articles tagged "${tag}"
+### ${posts.length} ${posts.length > 1 ? 'articles' : 'article'} found
+${tagMap[tag] ?? ''}`);
+---
+
+<Base pageTitle={`Tag: "${tag}"`} ogDescription={`Articles tagged with "${tag}"`}>
+  <div
+    class="article tight-markdown prose mx-auto w-full pb-4 xl:prose-lg dark:prose-invert"
+    set:html={preamble}
+  />
+  <div class="flex flex-col gap-4">
+    {posts.map((post) => <ArticleLink article={post} />)}
+  </div>
+  <div class="py-16 text-center italic text-subtext0/50">With perhaps more to come...</div>
+</Base>

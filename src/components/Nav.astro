@@ -1,0 +1,25 @@
+---
+import SunMoon from '@/assets/icons/sun-moon.svg?raw';
+import Tags from '@/assets/icons/tags.svg?raw';
+---
+
+<div class="flex justify-between py-6 text-2xl">
+  <a href="/" title="Home">
+    <img alt="logo" src="/favicon.svg" class="inline-block w-12" />
+  </a>
+  <div class="flex items-center gap-4 text-overlay0">
+    <a
+      class="transition-colors duration-200 hover:text-text"
+      href="/tags"
+      title="All tags"
+      set:html={Tags}
+    />
+    <button
+      id="theme-switcher"
+      class="yesscript transition-colors duration-200 hover:text-text"
+      aria-label="Theme Switcher (System)"
+      title="System"
+      set:html={SunMoon}
+    />
+  </div>
+</div>

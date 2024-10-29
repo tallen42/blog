@@ -1,0 +1,67 @@
+---
+import Base from '@/layouts/Base.astro';
+import type { Frontmatter } from '@/utils/article-types';
+import type { MDXInstance } from 'astro';
+import { embeddedMarkdownToHtml } from '@/utils/embedded-markdown';
+import Tag from '@/assets/icons/tag.svg?raw';
+import ChevronRight from '@/assets/icons/chevron-right.svg?raw';
+
+const posts = ((await Astro.glob('@/articles/*/*/*.mdx')) as MDXInstance<Frontmatter>[])
+  .filter((article) => !article.frontmatter.underConstruction || import.meta.env.DEV)
+  .sort((a, b) => Date.parse(b.frontmatter.date) - Date.parse(a.frontmatter.date));
+
+const tagFrequency = posts
+  .map((post) => post.frontmatter.tags)
+  .flat()
+  .reduce<Record<string, number>>((map, tagName) => {
+    map[tagName] = (map[tagName] ?? 0) + 1;
+    return map;
+  }, {});
+
+const frequencyTag = Object.entries(tagFrequency).reduce<Record<number, string[]>>(
+  (map, [tag, frequency]) => {
+    map[frequency] = [...(map[frequency] ?? []), tag].toSorted();
+    return map;
+  },
+  {},
+);
+
+const allFrequencies = Object.keys(frequencyTag)
+  .map((v) => parseInt(v))
+  .sort()
+  .reverse();
+
+const preamble = embeddedMarkdownToHtml(`
+# All Tags
+Just a list of the tags on here.`);
+---
+
+<Base pageTitle="All Tags" ogDescription="Tag listing">
+  <div
+    class="article tight-markdown prose mx-auto w-full pb-4 xl:prose-lg dark:prose-invert"
+    set:html={preamble}
+  />
+  <div class="flex flex-col gap-4">
+    {
+      allFrequencies
+        .map((frequency) =>
+          frequencyTag[frequency].map((tag) => (
+            <a
+              class="flex justify-between text-nowrap rounded bg-surface0/50 px-4 py-2 text-text outline outline-1 outline-surface1/70 transition-colors hover:bg-surface1"
+              href={`/tags/${tag}`}
+            >
+              <span class="flex flex-row items-center gap-4">
+                <span class="text-subtext1/60" set:html={Tag} />
+                {tag}
+              </span>
+              <span class="flex flex-row items-center gap-2">
+                <span class="text-subtext1">{frequency}</span>
+                <span set:html={ChevronRight} />
+              </span>
+            </a>
+          )),
+        )
+        .flat()
+    }
+  </div>
+</Base>
