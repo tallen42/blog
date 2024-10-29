@@ -7,6 +7,7 @@
   opacity: 0;
   transition: opacity 300ms;
   will-change: opacity;
+  z-index: 9999;
 }
 
 .medium-zoom--opened .medium-zoom-overlay {
@@ -26,6 +27,7 @@
   /*background-color: rgb(var(--ctp-mantle));
   box-shadow: 0 0 0.7rem #00000026;
   border: 0.1rem solid #00000026;*/
+  z-index: 10000;
 }
 
 .medium-zoom-image--hidden {
