@@ -40,6 +40,11 @@ export const iconDictionary = [
     icon: 'devicon-javascript-plain text-yellow-400 dark:text-yellow-200',
   },
   {
+    name: 'TypeScript',
+    url: 'https://www.typescriptlang.org/',
+    icon: 'devicon-typescript-plain text-blue-500 dark:text-blue-400',
+  },
+  {
     name: 'Dockerfile',
     url: 'https://docs.docker.com/engine/reference/builder/',
     icon: 'devicon-docker-plain text-blue-400 dark:text-blue-500',
