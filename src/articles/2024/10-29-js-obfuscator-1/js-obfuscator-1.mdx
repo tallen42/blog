@@ -1,0 +1,134 @@
+---
+title: Writing a JS Obfuscator pt. 1
+description: My journey from zero to indecipherable
+tags: ['obfuscation', 'javascript']
+date: 2024-29-10
+---
+
+## Contents
+
+## The Beginnings
+
+Yep, this is the part of the recipe where the author tells you their entire
+life's story before getting on with the recipe.
+
+Basically someone I know was getting into bypassing certain _website features_
+which involved a lot of heavy obfuscation that needed getting past. They wrote
+deobfuscation tools while also floating the idea of writing an obfuscator, and
+initially I shot it down.
+
+> "Well surely with the amount of stuff out there every effective
+> transformation of obfuscated code has been written and is already out there,
+> what good would cooking your own be?"
+
+\--was about what I said.
+
+The idea though in my head grew stronger as I kept remembering how strange of
+a language JavaScript is. How many ways there is to express a certain outcome
+which was a far cry from the rigidness and hard set on the happy path languages
+I was thinking in at the time (Zig, Rust, Go).
+
+![A chart highlighting my personal preferences in my favorite languages](good-langs.png 'These are my favorite ways to _use_ these languages, not necessarily their true strengths.')
+
+Rather quickly, I realized that to write a general purpose tool to inline all
+the behaviors that an obfuscation tool would use to indirect behaviors and hide
+a program's true intentions would be akin to a full blown compiler which could
+completely statically analyze the code. _As far as I know, there isn't a tool
+like that out there right now._
+
+This led to the next question which was how to escape the bounds of static
+analysis. After all, static analysis is the obvious thing to do to reduce the
+effectiveness of obfuscation. Just take the inverse of any given transformation
+and you're one step closer to the original source!
+
+The thing I ended up realizing is that since there is at the moment no way to
+generally inline the logic of _any_ given JavaScript code writing my own
+transformers to hide logic would require someone to write a bespoke inverse
+transformer to get it back to what it was originally. This inspired to try my
+hand at writing this obfuscator and play around with some ideas.
+
+## Starting It All Up
+
+The very first things I did were to decide how I was going to go about
+manipulating the source code and testing my obfuscation.
+
+- For source manipulation, I just went with `@babel/core` since there was
+  the aforementioned person in the [beginnings](#the-beginnings) already had
+  code that worked and took JavaScript and manipulated it.
+- For testing, I wrote a simple script which took JavaScript test files,
+  obfuscated them to a copy then ran both the not obfuscated and obfuscated
+  scripts and compared their standard outputs. If they didn't match then I'd at
+  least have a clue on where to begin to find the problem.
+
+Then there was of course the first transformer to write. Something just to get
+adjusted to things. Luckily, for getting started Babel provided many nice
+utilities and TypeScript types to make my life easier (confusingly, named
+`@types/babel__core`).
+
+## The First Transformer
+
+The idea I had was to just convert the string to `base64` at obfuscation time
+then turn it back into text at runtime.
+
+It was really simple, and it got me into the hang of writing transformers for
+Babel's AST. There's also a really handy [AST Explorer](https://astexplorer.net/)
+which lets you easily visualize Babel's AST without having to crawl back to
+`console.log(...)` (just make sure to change the parser at the top of the screen
+to `@babel/parser` mode).
+
+![Screenshot of AST Explorer](ast-explorer.png 'We can easily pick out leaves of interest in our AST')
+
+So it was clear to me that I needed to target the `StringLiteral` and replace
+whatever was here with a call to `atob` and then the pre-encoded `base64`
+string. Let's try putting that into the AST Explorer:
+
+![Showing logging vs logging with atob](ast-explorer-1.png 'It looks like our `StringLiteral` argument was replaced!')
+
+The `StringLiteral` was replaced with a `CallExpression` to something with the
+identifier `atob` with the arguments being our encoded `StringLiteral`. All
+that's left is to now replicate that behavior in code!
+
+```typescript title="atob.ts" attribution="clear? random? what for!"
+import { traverse, types } from '@babel/core';
+
+export const transformAtob = (root: types.Node) => {
+  traverse(root, {
+    StringLiteral(path) {
+      if (path.node.extra && path.node.extra.clear === 'false' && Math.random() > 0.25) return;
+      const stringLiteral = types.stringLiteral(btoa(path.node.value));
+      stringLiteral.extra = { clear: 'false' };
+      path.replaceWith(types.callExpression(types.identifier('atob'), [stringLiteral]));
+    },
+  });
+};
+```
+
+The call to the fan favorite [`Math.random()`](/article/math-random-password)
+was a precaution to prevent it from obfuscating its own output over and over
+causing the obfuscator to loop forever and crash, but then I just added that
+extra `clear` info so it wouldn't apply it twice (if an attacker has code to
+reverse it as many times as they wish, then why bother with doing the same
+transformation many times especially if it's easy to reverse).
+
+After some minor finagling, I got my first obfuscated and test-passing script:
+
+![My first string base64 transformer](first-transformer.png '_Baby steps_')
+
+It's a good first step and orientation into the Babel world. Don't be afraid to
+give this one a try yourself!
+
+## Conclusion
+
+While the transformation shown might as well be a wet napkin in terms of
+resistance to reverse-engineering, it's a start to a series of transformers
+that will hopefully make even simple programs absolutely unreadable.
+
+Here's a teaser of what's hopefully to come:
+
+{/* prettier-ignore */}
+```javascript title="hello_world.obf.js" attribution="Feel free to eval this!" wrap
+// was originally: console.log('hello world!');
+console[""+""["concat"](""+atob("bA=="))+""["concat"](atob("bw==")+"".concat(atob("Zw==")))](function(){let 疙,艾=function(){let 达;let 逸=[..."畛蚛衜溫賜咎技钫颦"];达=逸[6];逸[parseInt("0x6")]=逸[1500415407423488^-1352663039];逸[1]=达;达=逸[5];逸[parseInt("0x5")]=逸[4];逸[parseInt("4")]=达;return 逸["join"]("")}()["split"](""),阐,鰙;秅:while([]&&decodeURIComponent("%E9%86%98%E6%BC%B2%E9%89%99%E8%B3%AC")===function(){let 愫;let 憟=[..."漲醘鉙賬"];愫=憟[3];憟[~-4]=憟[3521451905777664^1952448512^-1651507197];憟[3]=愫;愫=憟[1];憟[69609398992896^864026625]=憟[~-1];憟[0]=愫;return 憟["join"]("")}()&&[Math.exp(Math.LN2*Math.E*Math["LN10"])-76.58958855176891<=0.0001857460683910176]){switch(艾.join("")){case"畛蚛颦溫咎賜钫技衜":阐=疙[10];疙[10]=疙[~parseInt("".concat("-8"))];疙[~-8]=阐;鰙=艾[4];艾[4]=艾[4];艾[~-5]=鰙;鰙=艾[1];艾[1]=艾[5];艾[~+"-6"]=鰙;鰙=艾[0];艾[0]=艾[6];艾[parseInt("0x6")]=鰙;break;case"钫咎技颦溫蚛畛衜賜":break 秅;case"钫賜颦溫咎蚛畛技衜":阐=疙[0];疙[0]=疙[4];疙[4]=阐;鰙=艾[5];艾[5]=艾[159265119535104^-857735163];艾[parseInt("0x5")]=鰙;鰙=艾[2];艾[2]=艾[1];艾[1]=鰙;鰙=艾[2];艾[2]=艾[parseInt("7")];艾[7]=鰙;鰙=艾[+"1"];艾[1]=艾[3];艾[3]=鰙;break;case"钫溫技颦咎蚛畛賜"+(""+"衜"):return 疙.join("");鰙=艾[7];艾[7]=艾[7];艾[parseInt("7")]=鰙;鰙=艾[7];艾[+"7"]=艾[8];艾[8]=鰙;鰙=艾[4];艾[4]=艾[1];艾[1]=鰙;鰙=艾[0];艾[0]=艾[0];艾[~-1]=鰙;break;case"畛技衜溫咎賜蚛钫颦":疙=[...atob("b2VsbGggd2RybG8h")];鰙=艾[8];艾[8]=艾[2];艾[1057115058733056^-946864126]=鰙;鰙=艾[1];艾[1]=艾[6];艾[6]=鰙;鰙=艾[7];艾[7]=艾[6];艾[6]=鰙;break}}}());
+```
+
+To be continued.
