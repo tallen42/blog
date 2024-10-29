@@ -20,7 +20,7 @@ const tagFrequency = posts
 
 const frequencyTag = Object.entries(tagFrequency).reduce<Record<number, string[]>>(
   (map, [tag, frequency]) => {
-    map[frequency] = [...(map[frequency] ?? []), tag].toSorted();
+    map[frequency] = [...(map[frequency] ?? []), tag].sort();
     return map;
   },
   {},
