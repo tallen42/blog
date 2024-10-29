@@ -19,6 +19,7 @@ const createUnderliner = (parent: HTMLElement): [() => void, () => void] => {
     const heightVariation = height / 2;
     const width = parseFloat(getComputedStyle(parent).width.replace(/[^\d.]/g, ''));
     const widthOffset = width / 3;
+    const boxHeight = getComputedStyle(parent).height;
 
     const randomHeight = () => Math.random() * heightVariation * 2 - heightVariation + height / 2;
 
@@ -36,7 +37,7 @@ const createUnderliner = (parent: HTMLElement): [() => void, () => void] => {
     svg.appendChild(path);
 
     svg.style.position = 'absolute';
-    svg.style.top = `${remSize}px`;
+    svg.style.top = `calc(${boxHeight} - 0.5rem)`;
     svg.style.userSelect = 'none';
 
     const pathLength = path.getTotalLength();
