@@ -57,7 +57,7 @@ const createUnderliner = (parent: HTMLElement): [() => void, () => void] => {
     if (!current) return;
     current.classList.add('fade-out');
     current.addEventListener('animationend', (e) => {
-      if (e.animationName === 'fade-out') current.remove();
+      if (e.animationName === 'fadeOut') current.remove();
     });
   };
 
