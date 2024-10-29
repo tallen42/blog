@@ -10,7 +10,7 @@ const lightThemeColor = '#EFF1F5';
 const darkThemeColor = '#252739';
 
 // modified to have a media query for no js
-const giscusAdaptive = 'https://cdn.kunet.dev/protanopia.css';
+const giscusAdaptive = 'https://blog.kunet.dev/protanopia.css';
 const giscusDark = 'dark_protanopia';
 const giscusLight = 'light_protanopia';
 
