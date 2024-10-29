@@ -1,5 +1,3 @@
 ## kunet blog
 
-this project is truly cursed!
-
-this text is here to trigger a re-build lol.
+you can view the old branch/version of the blog [here](https://c5436f26.kunet-blog.pages.dev/)
