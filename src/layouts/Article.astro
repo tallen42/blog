@@ -86,7 +86,7 @@ const randomPost = posts[Math.floor(Math.random() * posts.length)];
       </p>
       {
         frontmatter.tags && (
-          <div class="not-prose my-2 flex w-full gap-4 overflow-scroll p-1">
+          <div class="not-prose no-scrollbar my-2 flex w-full gap-4 overflow-scroll p-1">
             {frontmatter.tags.map((tag) => (
               <a
                 class="flex flex-row gap-2 text-nowrap rounded-l-3xl rounded-r-lg bg-surface0/50 px-2 outline outline-1 outline-surface1/70 transition-colors hover:bg-surface1"
