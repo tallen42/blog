@@ -13,6 +13,15 @@ export function getAttributionBaseStyles({ cssVar }: ResolverContext) {
     padding: calc(${cssVar('uiPaddingBlock')} + ${cssVar('frames.editorActiveTabIndicatorHeight')}) ${cssVar('uiPaddingInline')};
     position: relative;
 
+    & > * {
+      opacity: 0.8;
+      transition: opacity 200ms ease-in-out;
+    }
+
+    &:hover > * {
+      opacity: 1;
+    }
+
     &::before {
       content: '';
       position: absolute;
