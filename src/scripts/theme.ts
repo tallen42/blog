@@ -30,7 +30,11 @@ const loadPageElements = () => {
     console.log('Current theme is', currentTheme);
     console.log('Switching theme to', newTheme);
     localStorage.setItem('theme', newTheme);
-    loadTheme(newTheme);
+    if (!document.startViewTransition) {
+      loadTheme(newTheme);
+      return;
+    }
+    document.startViewTransition(() => loadTheme(newTheme));
   });
 };
 
