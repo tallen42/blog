@@ -1,7 +1,7 @@
 ---
 import Nav from '@/components/Nav.astro';
 import '@/styles/global.css';
-import { ViewTransitions, fade } from 'astro:transitions';
+import { ClientRouter, fade } from 'astro:transitions';
 
 interface Props {
   pageTitle?: string;
@@ -53,7 +53,7 @@ const {
       referrerpolicy="no-referrer"
     />
 
-    <ViewTransitions />
+    <ClientRouter />
 
     <!-- meta -->
     <meta charset="utf-8" />

@@ -11,7 +11,11 @@ interface Props {
 }
 
 export async function getStaticPaths() {
-  const articles: MDXInstance<Frontmatter>[] = await Astro.glob('@/articles/*/*/*.mdx');
+  const articles: MDXInstance<Frontmatter>[] = Object.values(
+    import.meta.glob('@/articles/*/*/*.mdx', {
+      eager: true,
+    }),
+  );
   return articles.flatMap((article) => {
     const fileName = extractFileKey(article.file);
     // this uses a really bad hack in order to format into yyyy-MM-dd

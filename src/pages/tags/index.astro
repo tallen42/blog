@@ -6,7 +6,11 @@ import { embeddedMarkdownToHtml } from '@/utils/embedded-markdown';
 import Tag from '@/assets/icons/tag.svg?raw';
 import ChevronRight from '@/assets/icons/chevron-right.svg?raw';
 
-const posts = ((await Astro.glob('@/articles/*/*/*.mdx')) as MDXInstance<Frontmatter>[])
+const posts = Object.values(
+  import.meta.glob<MDXInstance<Frontmatter>>('@/articles/*/*/*.mdx', {
+    eager: true,
+  }),
+)
   .filter((article) => !article.frontmatter.underConstruction || import.meta.env.DEV)
   .sort((a, b) => Date.parse(b.frontmatter.date) - Date.parse(a.frontmatter.date));
 

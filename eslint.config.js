@@ -25,7 +25,7 @@ export default [
       'tailwindcss/no-custom-classname': [
         'warn',
         {
-          whitelist: ['giscus'],
+          whitelist: ['giscus', 'article', 'articleLink', 'articleTitle'],
         },
       ],
     },

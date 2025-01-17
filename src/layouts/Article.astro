@@ -29,14 +29,16 @@ const filePath = file.split('/').splice(-5).join('/');
 // https://docs.astro.build/en/recipes/dynamically-importing-images/
 
 const parentFilePath = filePath.split('/').slice(0, -1).join('/');
-const images = import.meta.glob<{ default: ImageMetadata }>('/src/articles/**/*.png');
+const images = import.meta.glob<{ default: ImageMetadata }>('/src/articles/**/*.png', {
+  eager: true,
+});
 const heroImage = Object.keys(images).find(
   (v) =>
     frontmatter.hero !== undefined &&
     v.startsWith(`/${parentFilePath}`) &&
     v.endsWith(`/${frontmatter.hero}`),
 );
-const image = heroImage ? images[heroImage]() : null;
+const image = heroImage ? images[heroImage].default : null;
 
 const more = [
   'Other articles',
@@ -47,7 +49,11 @@ const more = [
 ];
 const moreText = more[Math.floor(Math.random() * more.length)];
 
-const posts = ((await Astro.glob('@/articles/*/*/*.mdx')) as MDXInstance<Frontmatter>[])
+const posts = Object.values(
+  import.meta.glob<MDXInstance<Frontmatter>>('@/articles/*/*/*.mdx', {
+    eager: true,
+  }),
+)
   .filter((article) => !article.frontmatter.underConstruction || import.meta.env.DEV)
   .sort((a, b) => Date.parse(b.frontmatter.date) - Date.parse(a.frontmatter.date));
 

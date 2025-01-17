@@ -11,8 +11,10 @@ interface Props {
 }
 
 export async function getStaticPaths() {
-  const posts: MDXInstance<Frontmatter>[] = (
-    (await Astro.glob('@/articles/*/*/*.mdx')) as MDXInstance<Frontmatter>[]
+  const posts = Object.values(
+    import.meta.glob<MDXInstance<Frontmatter>>('@/articles/*/*/*.mdx', {
+      eager: true,
+    }),
   )
     .filter((article) => !article.frontmatter.underConstruction || import.meta.env.DEV)
     .sort((a, b) => Date.parse(b.frontmatter.date) - Date.parse(a.frontmatter.date));
