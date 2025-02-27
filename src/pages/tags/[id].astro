@@ -4,6 +4,7 @@ import Base from '@/layouts/Base.astro';
 import type { Frontmatter } from '@/utils/article-types';
 import type { MDXInstance } from 'astro';
 import { embeddedMarkdownToHtml } from '@/utils/embedded-markdown';
+import { allArticlesButHidden } from '@/utils/article-utils';
 
 interface Props {
   posts: MDXInstance<Frontmatter>[];
@@ -11,19 +12,16 @@ interface Props {
 }
 
 export async function getStaticPaths() {
-  const posts = Object.values(
-    import.meta.glob<MDXInstance<Frontmatter>>('@/articles/*/*/*.mdx', {
-      eager: true,
-    }),
-  )
-    .filter((article) => !article.frontmatter.underConstruction || import.meta.env.DEV)
-    .sort((a, b) => Date.parse(b.frontmatter.date) - Date.parse(a.frontmatter.date));
-
-  const allTags: Set<string> = new Set(posts.map((article) => article.frontmatter.tags).flat());
+  const allTags: Set<string> = new Set(
+    allArticlesButHidden.map((article) => article.frontmatter.tags).flat(),
+  );
 
   return [...allTags].map((tag) => ({
     params: { id: tag },
-    props: { posts: posts.filter((post) => post.frontmatter.tags.includes(tag)), tag: tag },
+    props: {
+      posts: allArticlesButHidden.filter((post) => post.frontmatter.tags.includes(tag)),
+      tag: tag,
+    },
   }));
 }
 

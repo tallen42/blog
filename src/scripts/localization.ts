@@ -5,7 +5,7 @@ const localizeDatePublished = () => {
     const date = element.getAttribute('data-date');
     if (date === null) return;
 
-    element.textContent = new Date(date).toLocaleDateString(undefined, {
+    element.textContent = new Date(parseInt(date)).toLocaleDateString(undefined, {
       timeZone: 'UTC',
       year: 'numeric',
       month: 'long',

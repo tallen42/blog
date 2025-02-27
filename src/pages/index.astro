@@ -1,17 +1,8 @@
 ---
 import ArticleLink from '@/components/ArticleLink.astro';
 import Base from '@/layouts/Base.astro';
-import type { Frontmatter } from '@/utils/article-types';
-import type { MDXInstance } from 'astro';
 import { embeddedMarkdownToHtml } from '@/utils/embedded-markdown';
-
-const posts = Object.values(
-  import.meta.glob<MDXInstance<Frontmatter>>('@/articles/*/*/*.mdx', {
-    eager: true,
-  }),
-)
-  .filter((article) => !article.frontmatter.underConstruction || import.meta.env.DEV)
-  .sort((a, b) => Date.parse(b.frontmatter.date) - Date.parse(a.frontmatter.date));
+import { allArticlesButHidden } from '@/utils/article-utils';
 
 const preamble = embeddedMarkdownToHtml(`
 # KuNet's Blog
@@ -30,7 +21,7 @@ Heyo~! Welcome to my little blog site.
     set:html={preamble}
   />
   <div class="flex flex-col gap-4">
-    {posts.map((post) => <ArticleLink article={post} />)}
+    {allArticlesButHidden.map((post) => <ArticleLink article={post} />)}
   </div>
   <div class="py-16 text-center italic text-subtext0/50">you're at the beginning of time</div>
 </Base>

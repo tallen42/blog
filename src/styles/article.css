@@ -23,3 +23,7 @@ a:has(span.link-heading):hover {
 figure.image-figure > * {
   text-align: center;
 }
+
+.candy-stripes {
+  background: repeating-linear-gradient(45deg, #e99d0f, #e99d0f 10px, #d08700 10px, #d08700 20px);
+}

@@ -1,20 +1,11 @@
 ---
 import Base from '@/layouts/Base.astro';
-import type { Frontmatter } from '@/utils/article-types';
-import type { MDXInstance } from 'astro';
 import { embeddedMarkdownToHtml } from '@/utils/embedded-markdown';
 import Tag from '@/assets/icons/tag.svg?raw';
 import ChevronRight from '@/assets/icons/chevron-right.svg?raw';
+import { allArticlesButHidden } from '@/utils/article-utils';
 
-const posts = Object.values(
-  import.meta.glob<MDXInstance<Frontmatter>>('@/articles/*/*/*.mdx', {
-    eager: true,
-  }),
-)
-  .filter((article) => !article.frontmatter.underConstruction || import.meta.env.DEV)
-  .sort((a, b) => Date.parse(b.frontmatter.date) - Date.parse(a.frontmatter.date));
-
-const tagFrequency = posts
+const tagFrequency = allArticlesButHidden
   .map((post) => post.frontmatter.tags)
   .flat()
   .reduce<Record<string, number>>((map, tagName) => {

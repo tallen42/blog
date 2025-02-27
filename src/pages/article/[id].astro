@@ -1,7 +1,7 @@
 ---
 import Article from '@/layouts/Article.astro';
 import type { Frontmatter } from '@/utils/article-types';
-import { extractFileKey } from '@/utils/article-utils';
+import { allArticles, extractFilePathData } from '@/utils/article-utils';
 import type { MDXInstance } from 'astro';
 
 interface Props {
@@ -11,13 +11,8 @@ interface Props {
 }
 
 export async function getStaticPaths() {
-  const articles: MDXInstance<Frontmatter>[] = Object.values(
-    import.meta.glob('@/articles/*/*/*.mdx', {
-      eager: true,
-    }),
-  );
-  return articles.flatMap((article) => {
-    const fileName = extractFileKey(article.file);
+  return allArticles.flatMap((article) => {
+    const fileName = extractFilePathData(article.file).title;
     // this uses a really bad hack in order to format into yyyy-MM-dd
     /*const formattedDate = new Date(article.frontmatter.date).toLocaleDateString('sv-se', {
       timeZone: 'UTC',

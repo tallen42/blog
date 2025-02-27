@@ -1,0 +1,16 @@
+---
+import type { Frontmatter } from '@/utils/article-types';
+import { extractFilePathData } from '@/utils/article-utils';
+import type { MDXInstance } from 'astro';
+
+const posts = Object.values(
+  import.meta.glob<MDXInstance<Frontmatter>>('@/articles/*/*/*.mdx', {
+    eager: true,
+  }),
+).filter(
+  (article) =>
+    !article.frontmatter.underConstruction || !article.frontmatter.hidden || import.meta.env.DEV,
+);
+---
+
+{posts.map((post) => <p>{JSON.stringify(extractFilePathData(post.file))}</p>)}
