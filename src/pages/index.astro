@@ -3,7 +3,7 @@ import Base from "../layouts/Base.astro";
 import Ext from "../components/Ext.astro";
 import ArticleLink from "../components/ArticleLink.astro";
 
-const allPosts = (await Astro.glob("../articles/*/*.mdx"))
+const allPosts = Object.values(import.meta.glob("../articles/*/*.mdx", {eager: true}))
 	.filter((article) => !article.frontmatter.underConstruction || import.meta.env.DEV)
 	.sort((a, b) => Date.parse(b.frontmatter.date) - Date.parse(a.frontmatter.date));
 ---
