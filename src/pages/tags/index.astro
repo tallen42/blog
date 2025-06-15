@@ -1,5 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
+import Tag from "../../components/Tag.astro";
 const articles = await Astro.glob("../../articles/*/*.mdx");
 const tags = [...new Set(articles.filter((post) => !post.frontmatter.underConstruction).map((post) => post.frontmatter.tags).flat())].sort();
 ---
@@ -9,7 +10,7 @@ const tags = [...new Set(articles.filter((post) => !post.frontmatter.underConstr
   <div class="flex flex-col gap-2">
     {
       tags.map((tag) => (
-        <a class="bg-blue-800 rounded-lg py-1 px-2 hover:underline" href={`/tags/${tag}`} data-astro-prefetch>#{tag}</a>
+        <a href={`/tags/${tag}`} data-astro-prefetch><Tag tag={tag}/></a>
       ))
     }
   </div>

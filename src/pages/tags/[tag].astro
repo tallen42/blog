@@ -1,6 +1,7 @@
 ---
 import ArticleLink from "../../components/ArticleLink.astro";
 import Base from "../../layouts/Base.astro";
+import Tag from "../../components/Tag.astro";
 
 export async function getStaticPaths() {
   const articles = await Astro.glob("../../articles/*/*.mdx");
@@ -27,7 +28,7 @@ const { articles } = Astro.props;
 <Base pageTitle={"Tag: " + tag}>
   <div class="text-2xl">
     <span class="font-semibold">Articles tagged </span>
-    <span class="bg-blue-800 rounded-lg py-1 px-2 hover:underline cursor-pointer">#{tag}</span>
+    <Tag tag={tag}/>
   </div>
   <p class="text-gray-300 font-medium py-2">{articles.length} {articles.length > 1 ? "results" : "result"}</p>
   <div class="flex flex-col gap-4 py-4">

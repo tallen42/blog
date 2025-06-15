@@ -14,16 +14,19 @@ import caddyfile from "./caddyfile.tmLanguage.json";
 export default defineConfig({
   prefetch: true,
   site: "https://blog.kunet.dev",
+  markdown: {
+    shikiConfig: {
+      themes: {
+        light: 'solarized-light',
+        dark: 'solarized-dark'
+      }
+    },
+    remarkPlugins: [remarkMath],
+    rehypePlugins: [rehypeKatex],
+  },
   integrations: [
     tailwind(),
     mdx({
-      syntaxHighlight: "shiki",
-      shikiConfig: {
-        theme: macchiato,
-        langs: ["bash", caddyfile, "yaml", "zig", "java", "kotlin", "toml", "go"],
-      },
-      remarkPlugins: [remarkMath],
-      rehypePlugins: [rehypeKatex],
     }),
     sitemap(),
   ],

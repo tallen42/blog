@@ -4,23 +4,27 @@ import Ext from "../components/Ext.astro";
 import ArticleLink from "../components/ArticleLink.astro";
 
 const allPosts = Object.values(import.meta.glob("../articles/*/*.mdx", {eager: true}))
-	.filter((article) => !article.frontmatter.underConstruction || import.meta.env.DEV)
-	.sort((a, b) => Date.parse(b.frontmatter.date) - Date.parse(a.frontmatter.date));
+    .filter((article) => !article.frontmatter.underConstruction || import.meta.env.DEV)
+    .sort((a, b) => Date.parse(b.frontmatter.date) - Date.parse(a.frontmatter.date));
 ---
 
 <Base ogTitle="Homepage">
-	<div class="outline outline-offset-2 outline-1 outline-sky-700 bg-sky-800/40 rounded p-4">
-		<p>
-			Welcome to my engineering blog! Any code that you see that isn't attributed to someone else is written by me and is <Ext href="https://creativecommons.org/publicdomain/zero/1.0/">Creative Commons CC0</Ext> licensed.
-			The text of this blog itself (not the written code) is <Ext href="https://creativecommons.org/licenses/by-nd/4.0/">Creative Commons CC BY-ND</Ext> licensed.
-			You can reach me directly through the details on my <Ext href="https://github.com/imkunet">GitHub README.md</Ext>.
-		</p>
-		<br />
-		<p class="italic">Opinions on this blog are my own and do not reflect the opinions of any employers past, present, and future.</p>
-	</div>
-	<h1 class="py-6 font-semibold text-2xl">All Articles {import.meta.env.DEV && (<span class="text-red font-bold"> - DEV MODE - SHOWING ALL POSTS</span>)}</h1>
-	<div class="flex flex-col gap-4">
-		{ allPosts.map((post) => <ArticleLink article={post}/>) }
-	</div>
-	<div class="py-12 italic text-center text-gray-700">you're at the beginning of time</div>
+    <p>
+        Welcome to my blog! Any code that you see that isn't attributed to someone else is written by me and is
+        <Ext href="https://creativecommons.org/publicdomain/zero/1.0/">Creative Commons CC0</Ext>
+        licensed.
+        The text of this blog itself (not the written code) is
+        <Ext href="https://creativecommons.org/licenses/by-nd/4.0/">Creative Commons CC BY-ND</Ext>
+        licensed.
+    </p>
+    <br/>
+    <p class="italic">Opinions on this blog are my own and do not reflect the opinions of any employers past, present,
+        and future.</p>
+    <h1 class="py-6 font-semibold text-2xl">All Articles {import.meta.env.DEV && (
+            <span class="text-red font-bold"> - DEV MODE - SHOWING ALL POSTS</span>)}</h1>
+    <div class="flex flex-col gap-4">
+        {allPosts.map((post) =>
+                <ArticleLink article={post}/>)}
+    </div>
+    <div class="py-12 italic text-center text-gray-700">thank you for visiting!</div>
 </Base>

@@ -1,5 +1,6 @@
 ---
 import Base from "./Base.astro";
+import Tag from "../components/Tag.astro";
 const { frontmatter } = Astro.props;
 ---
 
@@ -9,7 +10,7 @@ const { frontmatter } = Astro.props;
     <h2 class="font-semibold text-xl italic text-gray-300 py-2">{frontmatter.description}</h2>
     <p class="text-gray-300 font-medium py-2">{new Date(frontmatter.date).toLocaleDateString('en-us', { year: "numeric", month: "long", day: "numeric" })}</p>
     {frontmatter.tags && 
-      <div class="my-2 gap-1 flex">{frontmatter.tags.map(tag => <a class="bg-blue-800 rounded-lg py-1 px-2 hover:underline" href={`/tags/${tag}`} data-astro-prefetch>#{tag}</a>)}</div>
+      <div class="my-2 gap-1 flex">{frontmatter.tags.map(tag => <a href={`/tags/${tag}`} data-astro-prefetch><Tag tag={tag}/></a>)}</div>
     }
     {frontmatter.learningDisclaimer && 
       <div class="outline outline-offset-2 outline-1 outline-red-700 bg-red-800/40 rounded p-4 my-6">

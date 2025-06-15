@@ -10,7 +10,7 @@ interface Props {
 import { ViewTransitions, fade, slide } from 'astro:transitions';
 import Nav from '../components/Nav.astro';
 const { 
-    pageTitle = "KuNet's Blog", 
+    pageTitle = "Tyler's Blog",
     ogTitle = pageTitle,
     ogDescription,
     ogTags,
@@ -32,7 +32,7 @@ const {
         <meta property="og:title" content={ogTitle} />
         {ogDescription && <meta property="og:description" content={ogDescription} />}
         <meta property="og:locale" content="en_US" />
-        <meta property="og:site_name" content="KuNet's Blog" />
+        <meta property="og:site_name" content="{pageTitle}" />
         {ogTags && ogTags.map(tag => <meta property="article:tag" content={tag} />)}
         {ogPublished && <meta property="article:published_time" content={(new Date(Date.parse(ogPublished))).toISOString()} />}
 		<title>{pageTitle}</title>
@@ -63,5 +63,17 @@ const {
     }
     @supports (font-variation-settings: normal) {
         :root { font-family: InterVariable, sans-serif; }
+    }
+    .astro-code {
+        border-radius: .75rem;
+    }
+    @media (prefers-color-scheme: dark) {
+        .astro-code {
+            color: var(--shiki-dark) !important;
+            background-color: var(--shiki-dark-bg) !important;
+            font-style: var(--shiki-dark-font-style) !important;
+            font-weight: var(--shiki-dark-font-weight) !important;
+            text-decoration: var(--shiki-dark-text-decoration) !important;
+        }
     }
 </style>

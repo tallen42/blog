@@ -1,0 +1,14 @@
+---
+interface Props {
+    tag: string,
+}
+
+const { tag } = Astro.props
+---
+<span class="rounded-lg px-1 over:underline border cursor-pointer text-base !text-inherit tag">{tag}</span>
+<style>
+    .tag::before {
+        content: "#";
+        font-weight: bold;
+    }
+</style>

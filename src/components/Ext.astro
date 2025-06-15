@@ -4,13 +4,8 @@ interface Props {
 }
 
 const { href } = Astro.props
-
-// absolutely terrible and work in progress :/
-// attr: https://codepen.io/heydon/pen/pgBBdR
 ---
-
 <a href={href} target="_blank" class="underline decoration-dotted text-blue-300 hover:text-blue-400 transition-colors inline-block ext"><slot>{href}</slot></a>
-
 <style>
     .ext::after {
         content: '';

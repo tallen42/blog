@@ -1,5 +1,6 @@
 ---
 import { MDXInstance } from 'astro';
+import Tag from "./Tag.astro";
 interface Props {
     article: MDXInstance<Record<string, any>>,
 }
@@ -12,6 +13,6 @@ const { article } = Astro.props
         <h2 class="font-semibold">{article.frontmatter.title}</h2>
         <h3 class="text-gray-300 italic">{article.frontmatter.description}</h3>
         <h3 class="text-gray-400">{new Date(article.frontmatter.date).toLocaleDateString('en-us', { year: "numeric", month: "short", day: "numeric" })}</h3>
-        <div class="flex gap-2 text-gray-400">{article.frontmatter.tags.map(tag => <span>#{tag}</span>)}</div>
+        <div class="flex gap-2 text-gray-400">{article.frontmatter.tags.map(tag => <Tag tag={tag}/>)}</div>
     </div>
 </a>

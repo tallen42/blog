@@ -20,8 +20,7 @@ make a ternary function in Kotlin... and it's rather *cursed*.
 Alright. Well. This is absolutely horrible. Never use
 this, please.
 
-<Code language="Kotlin" name="Cursed Ternary">
-```kotlin
+```kotlin filename="CursedTernary.kt"
 infix fun <T : Any> Boolean.`?`(v: T) = this to v
 infix fun <T : Any> Pair<Boolean, T>.`:`(v: T) =
     if (first) second else v
@@ -31,7 +30,6 @@ infix fun <T : Any> Pair<Boolean, T>.`:`(v: T) =
 // ": false" evaluates the ternary
 val a = false `?` "true" `:` "false"
 ```
-</Code>
 
 This can't be that bad... right?
 
