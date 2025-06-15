@@ -7,7 +7,7 @@ interface Props {
     ogPublished?: string,
 }
 
-import { ViewTransitions, fade, slide } from 'astro:transitions';
+import { ViewTransitions, fade } from 'astro:transitions';
 import Nav from '../components/Nav.astro';
 const { 
     pageTitle = "Tyler's Blog",
@@ -92,10 +92,16 @@ const {
         border-bottom-width: 0 !important;
         margin-bottom: -1px;
         text-underline-offset: calc(var(--ec-brdRad) + var(--ec-brdWd));
-        padding-bottom: 1px;
+        padding-bottom: 1px !important;
         text-decoration: underline;
     }
     figure.has-title {
         box-shadow: none !important;
+    }
+    figure:not(.has-title) > figcaption.header {
+        height: 1.75rem;
+    }
+    figure:not(.has-title) > figcaption.header > span.title {
+        display: none !important;
     }
 </style>

@@ -8,7 +8,6 @@ tags: ["guide", "kotlin", "programming"]
 
 import Code from '../../components/Code.astro';
 import Ext from '../../components/Ext.astro';
-import RefArticleLink from '../../components/RefArticleLink.astro';
 
 Since 2016, there's existed <Ext href="https://discuss.kotlinlang.org/t/ternary-operator/2116">this thread</Ext>
 on Kotlin Discussions with the idea to add a ternary operator to Kotlin.
@@ -16,7 +15,6 @@ on Kotlin Discussions with the idea to add a ternary operator to Kotlin.
 If you clicked on this article, you probably know what a ternary operator is, but for
 the folks who don't know what a ternary operator is, here's what it looks like in Java:
 
-<Code language="Java" name="Ternary operator in Java">
 ```java
 // in a function body
 boolean someBoolean = false;
@@ -31,7 +29,6 @@ if (someBoolean) {
     s = "bool is false";
 }
 ```
-</Code>
 
 As can be seen, the ternary operator is basically a concise `if` statement but passes up values. If you want any more
 information than that, you can always visit the <Ext href="https://en.wikipedia.org/wiki/Ternary_conditional_operator">Wikipedia page</Ext> 
@@ -119,7 +116,6 @@ condition wuh ("condition true" to "condition false")
 
 ## Update
 There's a ~~better~~ worse way to do this. Check out this update post:
-<RefArticleLink articleKey="kotlin-ternary-2" />
 
 ## Closing Thoughts
 As I hope you can now see, it's cumbersome to do something like this. It doesn't even save that

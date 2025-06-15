@@ -40,7 +40,7 @@ export default defineConfig({
         expressiveCode({
             themes: ['solarized-dark', 'material-theme-lighter'],
             styleOverrides: {
-
+                codeFontFamily: "Proto, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
             }
         }),
         mdx(),

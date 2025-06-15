@@ -12,8 +12,7 @@ import Ext from '../../components/Ext.astro';
 Nothing big in this post, just sharing my current zsh config. Recommended to patch your fonts
 with <Ext href="https://www.nerdfonts.com/">Nerd Fonts</Ext> (or use one of their pre-patched fonts).
 
-<Code language="Zsh" name="~/.kushell">
-```sh
+```sh title="~/.kushell"
 # needed for this config:
 # zsh
 # git
@@ -47,9 +46,7 @@ zinit ice as"command" from"gh-r" \
  atclone"./starship init zsh > init.zsh; ./starship completions zsh > \_starship" \
  atpull"%atclone" src"init.zsh"
 zinit light starship/starship
-
-````
-</Code>
+```
 
 ---
 
