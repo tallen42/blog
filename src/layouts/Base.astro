@@ -76,4 +76,26 @@ const {
             text-decoration: var(--shiki-dark-text-decoration) !important;
         }
     }
+    figcaption.header {
+        background: none !important;
+    }
+    .header::before {
+        border: none !important;
+    }
+    .expressive-code .frame.has-title pre {
+        border-top: var(--ec-brdWd) solid var(--ec-brdCol) !important;
+        border-top-right-radius: calc(var(--ec-brdRad) + var(--ec-brdWd)) !important;
+        box-shadow: var(--ec-frm-frameBoxShdCssVal);
+    }
+    figcaption.header > span.title {
+        border: var(--ec-brdWd) solid var(--ec-brdCol) !important;
+        border-bottom-width: 0 !important;
+        margin-bottom: -1px;
+        text-underline-offset: calc(var(--ec-brdRad) + var(--ec-brdWd));
+        padding-bottom: 1px;
+        text-decoration: underline;
+    }
+    figure.has-title {
+        box-shadow: none !important;
+    }
 </style>

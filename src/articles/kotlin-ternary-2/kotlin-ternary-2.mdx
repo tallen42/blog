@@ -20,7 +20,7 @@ make a ternary function in Kotlin... and it's rather *cursed*.
 Alright. Well. This is absolutely horrible. Never use
 this, please.
 
-```kotlin filename="CursedTernary.kt"
+```kotlin title="CursedTernary.kt"
 infix fun <T : Any> Boolean.`?`(v: T) = this to v
 infix fun <T : Any> Pair<Boolean, T>.`:`(v: T) =
     if (first) second else v
