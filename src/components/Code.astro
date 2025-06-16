@@ -1,0 +1,71 @@
+---
+import Ext from "./Ext.astro";
+
+interface Props {
+    name: string,
+    language: string,
+    source?: string,
+}
+
+const { name, language, source } = Astro.props;
+const langs = [
+    {
+        name: "Zig",
+        url: "https://ziglang.org/",
+        icon: "devicon-zig-original text-yellow-500",
+    },
+    {
+        name: "Bash",
+        url: "https://www.gnu.org/software/bash/",
+        icon: "devicon-bash-plain",
+    },
+    {
+        name: "Zsh",
+        url: "https://www.zsh.org/",
+        icon: "devicon-bash-plain",
+    },
+    {
+        name: "YAML",
+        url: "https://yaml.org/",
+        icon: "",
+    },
+    {
+        name: "Java",
+        url: "https://www.oracle.com/java/",
+        icon: "devicon-java-plain text-orange-300",
+    },
+    {
+        name: "Kotlin",
+        url: "https://kotlinlang.org/",
+        icon: "devicon-kotlin-plain text-violet-400",
+    },
+    {
+        name: "TOML",
+        url: "https://toml.io/",
+        icon: "",
+    }
+];
+
+const lang = langs.filter(it => it.name.toUpperCase() == language.toUpperCase())[0];
+---
+
+<div class="outline outline-1 outline-gray-700 rounded-lg">
+    <div class="bg-mantle px-4 rounded-t-lg py-2 text-white font-medium">
+        <span class={name.includes(" ") ? "" : "font-monospace"}>{name}</span>
+    </div>
+    <slot />
+    <div class="bg-mantle px-4 rounded-b-lg font-monospace flex flex-row-reverse place-content-between py-1">
+        {source && <Ext href={source}>Original Source</Ext>}
+        <span>{lang ? <div><span class="gap-2 flex items-center"><i class={lang.icon}/><Ext href={lang.url}>{lang.name}</Ext></span></div> : language}</span>
+    </div>
+</div>
+
+<style is:global>
+    .astro-code > * {
+        font-family: 'Proto' !important;
+    }
+
+    .astro-code {
+        padding: 1rem;
+    }
+</style>

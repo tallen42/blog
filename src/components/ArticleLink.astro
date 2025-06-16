@@ -1,0 +1,27 @@
+---
+import type { Frontmatter } from '@/types/Frontmatter';
+import type { MDXInstance } from 'astro';
+import Tag from "./Tag.astro";
+interface Props {
+    article: MDXInstance<Frontmatter>,
+}
+
+const { article } = Astro.props
+---
+
+<div class="not-prose leading-snug">
+    <a href={`/article/${article.frontmatter.key}`} data-astro-prefetch>
+        <div class="w-full outline outline-1 outline-cyan-800 hover:outline-cyan-500 transition-all duration-200 p-4 rounded-xl">
+            <h2 class="font-semibold">{article.frontmatter.title}</h2>
+            <h3 class="text-gray-300 italic">{article.frontmatter.description}</h3>
+
+            <h3 class="text-gray-400 inline">{new Date(article.frontmatter.date).toLocaleDateString('en-us', { year: "numeric", month: "short", day: "numeric" })}</h3>
+            <div class="flex items-end">
+                <div class="flex gap-2 text-gray-400">{article.frontmatter.tags.map(tag => <Tag tag={tag}/>)}</div>
+                <h3 class="text-gray-400 inline read-time text-sm ml-auto"><span>{article.frontmatter.readingTime}</span></h3>
+            </div>
+        </div>
+    </a>
+</div>
+
+

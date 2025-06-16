@@ -1,0 +1,17 @@
+---
+import Base from "../../layouts/Base.astro";
+import Tag from "../../components/Tag.astro";
+import {visibleArticles} from "../../utils/article-utils";
+const tags = [...new Set(visibleArticles.map((post) => post.frontmatter.tags).flat())].sort();
+---
+
+<Base pageTitle={"All Tags"}>
+  <h1 class="py-6 font-semibold text-4xl">All Tags</h1>
+  <div class="flex flex-row gap-3">
+    {
+      tags.map((tag) => (
+        <a href={`/tags/${tag}`} data-astro-prefetch><Tag tag={tag}/></a>
+      ))
+    }
+  </div>
+</Base>

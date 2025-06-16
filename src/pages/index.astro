@@ -1,0 +1,28 @@
+---
+import Base from "../layouts/Base.astro";
+import Ext from "../components/Ext.astro";
+import ArticleLink from "../components/ArticleLink.astro";
+import {visibleArticles} from "@/utils/article-utils";
+
+---
+
+<Base ogTitle="Homepage">
+    <p>
+        Welcome to my blog! Any code that you see that isn't attributed to someone else is written by me and is
+        <Ext href="https://creativecommons.org/publicdomain/zero/1.0/">Creative Commons CC0</Ext>
+        licensed.
+        The text of this blog itself (not the written code) is
+        <Ext href="https://creativecommons.org/licenses/by-nd/4.0/">Creative Commons CC BY-ND</Ext>
+        licensed.
+    </p>
+    <br/>
+    <p class="italic">Opinions on this blog are my own and do not reflect the opinions of any employers past, present,
+        and future.</p>
+    <h1 class="py-6 font-semibold text-2xl">All Articles {import.meta.env.DEV && (
+            <span class="text-red font-bold"> - DEV MODE - SHOWING ALL POSTS</span>)}</h1>
+    <div class="flex flex-col gap-4">
+        {visibleArticles.map((post) =>
+                <ArticleLink article={post}/>)}
+    </div>
+    <div class="py-12 italic text-center text-gray-700">thank you for visiting!</div>
+</Base>

@@ -1,0 +1,44 @@
+---
+import Base from "./Base.astro";
+import Tag from "../components/Tag.astro";
+const { frontmatter } = Astro.props;
+---
+
+<Base pageTitle={frontmatter.title} ogDescription={frontmatter.description} ogTags={frontmatter.tags} ogPublished={frontmatter.date}>
+  <article>
+    <h1 class="font-bold text-4xl py-2">{frontmatter.title}</h1>
+    <h2 class="font-semibold text-xl italic text-gray-300 py-2">{frontmatter.description}</h2>
+    <p class="text-gray-300 inline font-medium py-2">{new Date(frontmatter.date).toLocaleDateString('en-us', { year: "numeric", month: "long", day: "numeric" })}</p>
+    <p class="text-gray-400 inline read-time text-sm ml-4"><span>{frontmatter.readingTime}</span></p>
+
+    {frontmatter.tags && 
+      <div class="my-2 gap-2 flex">{frontmatter.tags.map(tag => <a href={`/tags/${tag}`} data-astro-prefetch><Tag tag={tag}/></a>)}</div>
+    }
+    {frontmatter.learningDisclaimer && 
+      <div class="outline outline-offset-2 outline-1 outline-red-700 bg-red-800/40 rounded p-4 my-6">
+        <p>
+          This article is marked as a <b>learning</b> article meaning that this article was written for the sake of me learning
+          through explaining. 
+        </p>p
+        <br />
+        <p>
+          As such, please take the content in this article
+          with a grain of salt. Feel free to include any comments that might correct something incorrect I have said.
+        </p>
+      </div>
+    }
+    {frontmatter.underConstruction && 
+      <div class="outline outline-offset-2 outline-1 outline-yellow-700 bg-yellow-800/40 rounded p-4 my-6">
+        <p>
+          This article is marked as <b>under construction</b> which means that this article's content is incomplete and will be
+          updated at a later date. Check back for updates!
+        </p>
+      </div>
+    }
+  <br />
+  <div class="prose max-w-full xl:prose-xl prose-invert">
+    <slot />
+    <hr />
+  </div>
+  </article>
+</Base>

@@ -1,0 +1,119 @@
+---
+interface Props {
+    pageTitle?: string,
+    ogTitle?: string,
+    ogDescription?: string,
+    ogTags?: string[],
+    ogPublished?: string,
+}
+
+import { ViewTransitions, fade } from 'astro:transitions';
+import Nav from '../components/Nav.astro';
+const { 
+    pageTitle = "Tyler's Blog",
+    ogTitle = pageTitle,
+    ogDescription,
+    ogTags,
+    ogPublished,
+} = Astro.props
+---
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="sitemap" href="/sitemap-index.xml" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.png" />
+        <link rel="preconnect" href="https://rsms.me/">
+        <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha512-fHwaWebuwA7NSF5Qg/af4UeDx9XqUpYpOGgubo3yWu+b2IQR4UeQwbb42Ti7gVAjNtVoI/I9TEoYeu9omwcC6g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/devicon/2.16.0/devicon.min.css" integrity="sha512-BlFCHJWngPEHme4TwlEob6dPLfoNaQBTTISPwr4344nxR353w2vgGZ7GiSadbbeR20cJeeM0u1I2lAZuIZ1aOQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="theme-color" content="#3D4061" />
+        <meta property="og:title" content={ogTitle} />
+        {ogDescription && <meta property="og:description" content={ogDescription} />}
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:site_name" content="{pageTitle}" />
+        {ogTags && ogTags.map(tag => <meta property="article:tag" content={tag} />)}
+        {ogPublished && <meta property="article:published_time" content={(new Date(ogPublished)).toISOString()} />}
+		<title>{pageTitle}</title>
+        <ViewTransitions />
+    </head>
+    <body class="macchiato bg-crust text-white">
+        <div class="mx-auto max-w-4xl p-4 xl:text-xl">
+            <Nav />
+            <div transition:animate={fade({ duration: '0.25s' })}>
+                <slot />
+            </div>
+        </div>
+    </body>
+</html>
+
+<style is:global>
+    @font-face {
+        font-family: 'Proto';
+        src: url(/0xProto-Regular.woff2) format('woff2');
+    }
+    html { 
+        color-scheme: dark;
+        scrollbar-gutter: stable both-edges;
+    }
+    :root {
+        font-family: Inter, sans-serif;
+        font-feature-settings: 'liga' 1, 'calt' 1; /* fix for Chrome */
+    }
+    @supports (font-variation-settings: normal) {
+        :root { font-family: InterVariable, sans-serif; }
+    }
+    .astro-code {
+        border-radius: .75rem;
+    }
+    @media (prefers-color-scheme: dark) {
+        .astro-code {
+            color: var(--shiki-dark) !important;
+            background-color: var(--shiki-dark-bg) !important;
+            font-style: var(--shiki-dark-font-style) !important;
+            font-weight: var(--shiki-dark-font-weight) !important;
+            text-decoration: var(--shiki-dark-text-decoration) !important;
+        }
+    }
+    figcaption.header {
+        background: none !important;
+    }
+    .header::before {
+        border: none !important;
+    }
+    .expressive-code .frame.has-title pre {
+        border-top: var(--ec-brdWd) solid var(--ec-brdCol) !important;
+        border-top-right-radius: calc(var(--ec-brdRad) + var(--ec-brdWd)) !important;
+        box-shadow: var(--ec-frm-frameBoxShdCssVal);
+    }
+    figcaption.header > span.title {
+        border: var(--ec-brdWd) solid var(--ec-brdCol) !important;
+        border-bottom-width: 0 !important;
+        margin-bottom: -1px;
+        text-underline-offset: calc(var(--ec-brdRad) + var(--ec-brdWd));
+        padding-bottom: 1px !important;
+        text-decoration: underline;
+    }
+    figure.has-title {
+        box-shadow: none !important;
+    }
+    figure:not(.has-title) > figcaption.header {
+        height: 1.75rem;
+    }
+    figure:not(.has-title) > figcaption.header > span.title {
+        display: none !important;
+    }
+    .read-time::before {
+        content: '';
+        display: inline-block;
+        width: 1rem;
+        height: .8rem;
+        white-space: nowrap;
+        overflow: hidden;
+        background-image: url(/icons/clock-two.svg);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 80% auto;
+    }
+</style>
